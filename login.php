@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="text-center mb-4">
                     <i class="bi bi-person-circle text-primary display-4"></i>
-                    <h4 class="mt-2 fw-bold text-primary">My Daily Journal</h4>
+                    <h4 class="mt-2 fw-bold text-primary"> Welcome My Daily Journal</h4>
                     <hr />
                 </div>
 
