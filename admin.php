@@ -4,7 +4,7 @@ session_start();
 include "koneksi.php";
 
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    header("Location: user.php");
     exit;
 }
 ?>
@@ -69,6 +69,14 @@ if (!isset($_SESSION['username'])) {
                     <li class="nav-item">
                         <a class="nav-link" href="admin.php?page=article">Article</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.php?page=gallery">Gallery</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin.php?page=user">Manajemen User</a>
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <?= $_SESSION['username'] ?>

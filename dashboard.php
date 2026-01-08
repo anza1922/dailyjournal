@@ -7,9 +7,9 @@ $hasil1 = $conn->query($sql1);
 $jumlah_article = $hasil1->num_rows;
 
 //query gallery
-//$sql2 = "SELECT * FROM gallery ORDER BY tanggal DESC";
-//$hasil2 = $conn->query($sql2);
-//$jumlah_gallery = $hasil2->num_rows;
+$sql2 = "SELECT * FROM gallery ORDER BY tanggal DESC";
+$hasil2 = $conn->query($sql2);
+$jumlah_gallery = $hasil2->num_rows;
 ?>
 
 <div class="row row-cols-1 row-cols-md-4 g-4 justify-content-center pt-4">
@@ -51,7 +51,7 @@ $jumlah_article = $hasil1->num_rows;
 
                     <div class="p-2">
                         <span class="badge bg-primary fs-2 px-4 py-2 rounded-pill">
-                            <?php //echo $jumlah_gallery; ?>
+                            <?php echo $jumlah_gallery; ?>
                         </span>
                     </div>
 

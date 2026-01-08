@@ -178,6 +178,7 @@ include "koneksi.php";
     body.dark-mode #article img:hover {
       filter: brightness(1);
     }
+
   </style>
 </head>
 
@@ -293,33 +294,45 @@ include "koneksi.php";
   <section id="gallery" class="text-center p-5">
     <div class="container">
       <h1 class="fw-bold display-4 pb-3">Gallery</h1>
+
+      <?php
+      include "koneksi.php";
+      $sql = "SELECT * FROM gallery ORDER BY tanggal DESC";
+      $hasil = $conn->query($sql);
+      ?>
+
       <div id="carouselExample" class="carousel slide">
         <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="fotoku/p.jpg" class="d-block w-100" />
-          </div>
-          <div class="carousel-item">
-            <img src="fotoku/fotoi.jpg" class="d-block w-100" />
-          </div>
-          <div class="carousel-item">
-            <img src="fotoku/fotoku4.jpg" class="d-block w-100" />
-          </div>
+
+          <?php
+          $active = true;
+          while ($row = $hasil->fetch_assoc()) {
+          ?>
+            <div class="carousel-item <?= $active ? 'active' : '' ?>">
+              <img src="img/<?= $row['gambar'] ?>"
+                class="d-block w-100 img-carousel">
+
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                <h5><?= $row['judul'] ?></h5>
+                <p><?= $row['isi'] ?></p>
+              </div>
+            </div>
+          <?php
+            $active = false;
+          }
+          ?>
+
         </div>
-        <button
-          class="carousel-control-prev"
-          type="button"
-          data-bs-target="#carouselExample"
-          data-bs-slide="prev">
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
           <span class="carousel-control-prev-icon"></span>
         </button>
-        <button
-          class="carousel-control-next"
-          type="button"
-          data-bs-target="#carouselExample"
-          data-bs-slide="next">
+
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
           <span class="carousel-control-next-icon"></span>
         </button>
       </div>
+
     </div>
   </section>
 

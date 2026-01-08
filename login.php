@@ -1,123 +1,138 @@
 <?php
-//memulai session atau melanjutkan session yang sudah ada
 session_start();
-
-//menyertakan code dari file koneksi
 include "koneksi.php";
 
-//check jika sudah ada user yang login arahkan ke halaman admin
-if (isset($_SESSION['username'])) { 
-	header("location:admin.php"); 
+// Jika sudah login, redirect ke admin
+if (isset($_SESSION['username'])) {
+    header("Location: admin.php");
+    exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $username = $_POST['user'];
-  
-  //menggunakan fungsi enkripsi md5 supaya sama dengan password  yang tersimpan di database
-  $password = md5($_POST['pass']);
+// Proses login
+if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-	//prepared statement
-  $stmt = $conn->prepare("SELECT username 
-                          FROM user 
-                          WHERE username=? AND password=?");
+    // Ambil data user berdasarkan username
+    $stmt = $conn->prepare("SELECT * FROM user WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-	//parameter binding 
-  $stmt->bind_param("ss", $username, $password);//username string dan password string
-  
-  //database executes the statement
-  $stmt->execute();
-  
-  //menampung hasil eksekusi
-  $hasil = $stmt->get_result();
-  
-  //mengambil baris dari hasil sebagai array asosiatif
-  $row = $hasil->fetch_array(MYSQLI_ASSOC);
-
-  //check apakah ada baris hasil data user yang cocok
-  if (!empty($row)) {
-    //jika ada, simpan variable username pada session
-    $_SESSION['username'] = $row['username'];
-
-    //mengalihkan ke halaman admin
-    header("location:admin.php");
-  } else {
-	  //jika tidak ada (gagal), alihkan kembali ke halaman login
-    header("location:login.php");
-  }
-
-	//menutup koneksi database
-  $stmt->close();
-  $conn->close();
-} else {
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        
+        // Verifikasi password
+        if (password_verify($password, $row['password'])) {
+            // Login berhasil
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['user_id'] = $row['id'];
+            
+            echo "<script>
+                alert('Login berhasil!');
+                document.location='admin.php';
+            </script>";
+        } else {
+            // Password salah
+            echo "<script>
+                alert('Username atau Password salah!');
+                document.location='login.php';
+            </script>";
+        }
+    } else {
+        // Username tidak ditemukan
+        echo "<script>
+            alert('Username atau Password salah!');
+            document.location='login.php';
+        </script>";
+    }
+    
+    $stmt->close();
+    $conn->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login | My Daily Journal</title>
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-        crossorigin="anonymous" />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-    <link rel="icon" href="img/logo.png" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - My Daily Journal</title>
+    <link rel="icon" href="img/profil.jpg" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+        }
+        .login-header {
+            background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .login-body {
+            padding: 30px;
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #0066cc 0%, #003d7a 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .btn-login:hover {
+            background: linear-gradient(135deg, #003d7a 0%, #0066cc 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,102,204,0.3);
+        }
+        .form-control:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 0.2rem rgba(0,102,204,0.25);
+        }
+    </style>
 </head>
-
-<body class="btn-primary">
-
-    <div class="container min-vh-100 d-flex justify-content-center align-items-center">
-        <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 400px;">
-            <div class="card-body p-4">
-
-                <div class="text-center mb-4">
-                    <i class="bi bi-person-circle text-primary display-4"></i>
-                    <h4 class="mt-2 fw-bold text-primary"> Welcome My Daily Journal</h4>
-                    <hr />
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <h3><i class="bi bi-journal-text"></i> My Daily Journal</h3>
+            <p class="mb-0">Login to Admin Panel</p>
+        </div>
+        <div class="login-body">
+            <form method="post" action="">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="bi bi-person-fill"></i> Username
+                    </label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username" required autofocus>
                 </div>
-
-                <form action="" method="post" id="loginForm">
-                    <div class="form-floating mb-3">
-                        <input
-                            type="text"
-                            name="user"
-                            class="form-control rounded-3"
-                            id="user"
-                            placeholder="Username" />
-                        <label for="username">Username</label>
-                    </div>
-
-                    <div class="form-floating mb-4">
-                        <input
-                            type="password"
-                            name="pass"
-                            class="form-control rounded-3"
-                            id="pass"
-                            placeholder="Password" />
-                        <label for="password">Password</label>
-                    </div>
-
-                    <div class="d-grid">
-                        <button class="btn btn-primary btn-lg rounded-3">
-                            Login
-                        </button>
-                    </div>
-                    <p id="errorMsg" class="text-danger"></p>
-                </form>
-            </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock-fill"></i> Password
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" name="login" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-}
-?>
